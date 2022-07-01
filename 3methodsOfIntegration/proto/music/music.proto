@@ -1,0 +1,49 @@
+syntax = "proto3"; 
+
+import "google/protobuf/timestamp.proto"; 
+import "google/protobuf/wrappers.proto";
+
+package music; 
+option go_package="musicpb"; 
+
+service MusicService { 
+	rpc AddMusic(MusicRequest) returns (MusicID){}; 
+	rpc GetMusic(MusicID) returns (MusicResponse){}; 
+	rpc SearchMusic(google.protobuf.StringValue) returns (stream SearchMusicResponse){};
+	rpc UpdateMusic(stream UpdateMusicRequest) returns (google.protobuf.StringValue){};
+}
+
+
+message Music { 
+	string songName = 1;
+	Author authorInfo = 2;
+	string description = 3;
+	google.protobuf.Timestamp songDuration = 4;
+}
+
+message Author {
+	string name = 1;
+	string age = 2;
+	string followers = 3;
+	string tracks = 4;
+}
+
+message MusicRequest {
+	Music add = 1;
+}
+
+message MusicID {
+	string id = 1;
+}
+
+message MusicResponse {
+	Music resp = 1;
+}
+
+message SearchMusicResponse {
+	Music search = 1;
+}
+
+message UpdateMusicRequest {
+	Music req = 1;
+}
