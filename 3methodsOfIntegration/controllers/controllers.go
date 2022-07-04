@@ -122,3 +122,22 @@ func (c *controller) UpdateMusic(stream musicpb.MusicService_UpdateMusicServer) 
 		}
 	}
 }
+
+func (c *controller) UploadMusic(stream musicpb.MusicService_UploadMusicServer) error {
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			log.Fatalf("Error while receiving data: %v\n", err)
+		}
+
+		if err := stream.Send(&musicpb.UploadMusicResponse{
+			Resp: "Uploaded " + req.Req.TrackName,
+		}); err != nil {
+			log.Fatalf("Error while sending stream response: %v\n", err)
+		}
+	}
+}
