@@ -11,6 +11,7 @@ service MusicService {
 	rpc GetMusic(MusicID) returns (MusicResponse){}; 
 	rpc SearchMusic(google.protobuf.StringValue) returns (stream SearchMusicResponse){};
 	rpc UpdateMusic(stream UpdateMusicRequest) returns (google.protobuf.StringValue){};
+	rpc UploadMusic(stream UploadMusicRequest) returns (stream UploadMusicResponse){};
 }
 
 
@@ -26,6 +27,13 @@ message Author {
 	string age = 2;
 	string followers = 3;
 	string tracks = 4;
+}
+
+message UploadTrack {
+	string trackName = 1;
+	string fileSize = 2;
+	string fileExt = 3;
+	google.protobuf.Timestamp uploadedAt = 4;
 }
 
 message MusicRequest {
@@ -46,4 +54,12 @@ message SearchMusicResponse {
 
 message UpdateMusicRequest {
 	Music req = 1;
+}
+
+message UploadMusicRequest {
+	UploadTrack req = 1;
+}
+
+message UploadMusicResponse {
+	string resp = 1;
 }
