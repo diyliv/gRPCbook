@@ -26,7 +26,8 @@ func main() {
 
 	c := musicpb.NewMusicServiceClient(cc)
 	// serverStreaming(ctx, c)
-	clientStreaming(ctx, c)
+	// clientStreaming(ctx, c)
+	BiDiStream(ctx, c)
 }
 
 func serverStreaming(ctx context.Context, c musicpb.MusicServiceClient) {
@@ -79,4 +80,41 @@ func clientStreaming(ctx context.Context, c musicpb.MusicServiceClient) {
 		log.Fatalf("Error while receiving response from server: %v\n", err)
 	}
 	fmt.Printf("%v\n", res)
+}
+
+func BiDiStream(ctx context.Context, c musicpb.MusicServiceClient) {
+	stream, err := c.UploadMusic(ctx)
+	if err != nil {
+		log.Fatalf("Error while calling Upload RPC: %v\n", err)
+	}
+
+	alotReq := []musicpb.UploadTrack{
+		musicpb.UploadTrack{TrackName: "First", FileSize: "3.45MB", FileExt: "mp4", UploadedAt: timestamppb.Now()},
+		musicpb.UploadTrack{TrackName: "second", FileSize: "2.23MB", FileExt: "mp4", UploadedAt: timestamppb.Now()},
+		musicpb.UploadTrack{TrackName: "third", FileSize: "10MB", FileExt: "mp4", UploadedAt: timestamppb.Now()},
+	}
+
+	waitch := make(chan struct{})
+	go func() {
+		for _, req := range alotReq {
+			stream.Send(&musicpb.UploadMusicRequest{&req})
+		}
+		stream.CloseSend()
+	}()
+
+	go func() {
+		for {
+			res, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatalf("Error while receiving: %v\n", err)
+				break
+			}
+			fmt.Println(res.Resp)
+		}
+	}()
+
+	<-waitch
 }
